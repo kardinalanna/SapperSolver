@@ -7,7 +7,6 @@ public class Controller {
     Map map;
     State state;
     public int countOfBomb;
-    public int countOfFlag = 0;
 
     public Controller(int columns, int rows, int bombNumber) { //передаем размеры поля из ViewClass и отсюда все понеслось...
         countOfBomb = bombNumber;
@@ -33,12 +32,9 @@ public class Controller {
         winner();
     }
 
-    public int countOfOpen = 0;
 
     void openBox(Coord coord) { //при нажатии левой кнопкой мыши
         if (map.inField(coord)) {
-            countOfOpen++;
-            System.out.println("OPen in real field = " + countOfOpen);
             switch (map.getFromFlagMap(coord)) {
                 case opened: { //если ячейка открыта и бомбы вокруг нее помечены флагами, открываем оставшие цифры и пустые ячейки
                     if (map.getFromBombMap(coord) != ImageStorage.bomb && map.getCountOfFlagged(coord) == map.getFromBombMap(coord).getNumber())
@@ -80,8 +76,6 @@ public class Controller {
     }
 
     public void presButton3(Coord coord) {//обработка нажатия правой клавищи - постановка/снятие флага
-        countOfFlag++;
-        System.out.println("countOfFlag in real field = " + countOfFlag);
         if (gameOver()) return;
         switch (map.flagMatrix.getPictureOnPosition(coord)) {
             case flaged: {
@@ -119,53 +113,5 @@ public class Controller {
         return map.getBombMatrix();
     }
 
-    public static void main(String[] args) {
-        Controller controller = new Controller(9, 9, 7);
-        controller.start();
-        Bot bot = new Bot(controller.getBombMatr(), 9, 9);
-        bot.showField();
-
-        int y = 15;
-        boolean start = true;
-        while (controller.state != State.bombed && y > 0) {// while (!controller.gameOver())
-            if (start) {
-                controller.presButton1(bot.randomOpen());
-                start = false;
-            }
-            if (controller.state == State.bombed) {
-                System.out.println("Бомба в самой первой ячейке");
-                return;
-            }
-            bot.reliableSolution();
-            if (bot.getCoordToOpen().size() != 0) for (Coord c : bot.getCoordToOpen()) controller.presButton1(c);
-            if (bot.getCoordToFlagged().size() != 0) for (Coord c : bot.getCoordToFlagged()) controller.presButton3(c);
-
-            if (controller.state == State.bombed) {
-                System.out.println("Здесь взрываться не должно!!");
-                return;
-            }
-
-            System.out.println("opened = " + controller.countOfOpen);
-            for (Coord c : bot.getCoordToOpen()) {
-                System.out.print(c.toString() + "; ");
-            }
-            System.out.println();
-            System.out.println("flagged =" + controller.countOfFlag);
-            for (Coord c : bot.getCoordToOpen()) {
-                System.out.print(c.toString() + "; ");
-            }
-            if (controller.state == State.winner) {
-                System.out.println("Можешь наслождаться сладким вкусом победы (*0*)/");
-            }
-
-            System.out.println(" y =" + y--);
-
-            System.out.println("******END******");
-        }
-        if (controller.state == State.bombed) System.out.println("МЫ ВЗОРВАЛИСЬ К ЧЕРТЯМ!!!!");
-
-    }
-
 }
-
 
